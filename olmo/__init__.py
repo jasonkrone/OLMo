@@ -1,6 +1,6 @@
-from .config import *
+#from .config import *
 from .model import *
-from .tokenizer import *
+#from .tokenizer import *
 
 
 def check_install(cuda: bool = False):

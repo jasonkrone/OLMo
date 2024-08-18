@@ -11,9 +11,34 @@ from transformers.models.auto import AutoModelForCausalLM
 from olmo.config import ModelConfig
 from olmo.model import OLMo
 
-from .configuration_olmo import OLMoConfig
+from .configuration_olmo import OLMoConfig, DEFAULT_CONFIG_DICT
 
 log = logging.getLogger(__name__)
+
+
+class SimpleConfig(object):
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    @property
+    def effective_n_kv_heads(self) -> int:
+        if self.n_kv_heads is None:
+            if self.multi_query_attention is True:
+                return 1
+            else:
+                return self.n_heads
+        else:
+            if self.multi_query_attention is None:
+                return self.n_kv_heads
+            if self.multi_query_attention:
+                n_kv_heads_should_be = 1
+            else:
+                n_kv_heads_should_be = self.n_heads
+            if self.n_kv_heads == n_kv_heads_should_be:
+                return n_kv_heads_should_be
+            else:
+                raise ValueError("not supported")
 
 
 def create_model_config_from_pretrained_config(config: OLMoConfig):
@@ -22,10 +47,10 @@ def create_model_config_from_pretrained_config(config: OLMoConfig):
     """
 
     kwargs = {}
-    for field in fields(ModelConfig):
-        kwargs[field.name] = getattr(config, field.name)
+    for key in DEFAULT_CONFIG_DICT:
+        kwargs[key] = getattr(config, key)
 
-    model_config = ModelConfig(**kwargs)
+    model_config = SimpleConfig(**kwargs)
     return model_config
 
 

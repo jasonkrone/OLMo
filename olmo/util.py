@@ -26,7 +26,7 @@ from rich.progress import Progress
 from rich.text import Text
 from rich.traceback import Traceback
 
-from olmo_data.data import get_data_path
+#from olmo_data.data import get_data_path
 
 from .aliases import PathOrStr
 from .exceptions import (
